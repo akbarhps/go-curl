@@ -42,7 +42,7 @@ func parseRequest(fileName string) *RequestConfig {
 }
 
 func PrettyPrint(data interface{}) {
-	content, err := json.MarshalIndent(data, "", "\t")
+	content, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -57,7 +57,7 @@ func main() {
 
 	fileName := os.Args[1]
 	requestConfig := parseRequest(fileName)
-	fmt.Println("===== REQUEST =====")
+	fmt.Println("::REQUEST::")
 	PrettyPrint(requestConfig)
 
 	queryParameters := "?"
@@ -104,7 +104,7 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println("\n\n===== RESPONSE HEADER =====")
+	fmt.Println("\n\n::RESPONSE HEADER::")
 	for k, v := range httpResponse.Header {
 		fmt.Printf("%s: %s\n", k, v)
 	}
@@ -117,12 +117,21 @@ func main() {
 		}
 	}(httpResponse.Body)
 
-	fmt.Println("\n\n===== RESPONSE BODY =====")
+	fmt.Println("\n\n::RESPONSE BODY::")
+
 	httpResponseJson := make(map[string]interface{})
 	err = json.Unmarshal(httpResponseBody, &httpResponseJson)
 	if err != nil {
-		fmt.Println("Error parsing JSON response body")
-	} else {
+		httpResponseJson := make([]map[string]interface{}, 0)
+		err = json.Unmarshal(httpResponseBody, &httpResponseJson)
+
+		if err != nil {
+			panic(err)
+		}
+
 		PrettyPrint(httpResponseJson)
+		return
 	}
+
+	PrettyPrint(httpResponseJson)
 }
