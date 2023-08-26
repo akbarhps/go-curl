@@ -1,0 +1,16 @@
+{
+  "url": "https://64e9579299cf45b15fe09811.mockapi.io/test/api/users",
+  "method": "POST",
+  "headers": {
+    "Content-Type": "application/json",
+    "Accept": "application/json"
+  },
+  "query": {},
+  "form": {},
+  "body": {
+    "createdAt": "2023-08-25T07:19:20.300Z",
+    "name": "Awekaweok",
+    "avatar": "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/548.jpg",
+    "id": "53"
+  }
+}

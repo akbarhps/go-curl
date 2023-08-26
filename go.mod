@@ -1,5 +1,3 @@
-module github.com/akbarhps/go-curl
+module github.com/akbarhps/http
 
 go 1.17
-
-require github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
