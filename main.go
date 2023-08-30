@@ -126,7 +126,8 @@ func main() {
 		err = json.Unmarshal(httpResponseBody, &httpResponseJson)
 
 		if err != nil {
-			panic(err)
+			fmt.Println(string(httpResponseBody))
+			return
 		}
 
 		PrettyPrint(httpResponseJson)
