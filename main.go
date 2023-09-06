@@ -105,6 +105,7 @@ func main() {
 	}
 
 	fmt.Println("\n\n::RESPONSE HEADER::")
+	fmt.Println("Status Code:", httpResponse.StatusCode)
 	for k, v := range httpResponse.Header {
 		fmt.Printf("%s: %s\n", k, v)
 	}
