@@ -1,11 +1,27 @@
-{
-  "url": "https://64e9579299cf45b15fe09811.mockapi.io/test/api/users",
-  "method": "GET",
-  "headers": {
-    "Content-Type": "application/json",
-    "Accept": "application/json"
+[
+  {
+    "url": "https://64e9579299cf45b15fe09811.mockapi.io/test/api/users",
+    "method": "GET",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    },
+    "query": {},
+    "form": {},
+    "body": {}
   },
-  "query": {},
-  "form": {},
-  "body": {}
-}
+  {
+    "url": "https://64e9579299cf45b15fe09811.mockapi.io/test/api/users",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    },
+    "query": {},
+    "form": {
+      "name": "test",
+      "avatar": "test"
+    },
+    "body": {}
+  }
+]

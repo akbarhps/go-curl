@@ -21,7 +21,7 @@ type RequestConfig struct {
 	Body    map[string]string `json:"body"`
 }
 
-func parseRequest(fileName string) *RequestConfig {
+func parseRequest(fileName string) []RequestConfig {
 	execDir, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
@@ -32,7 +32,7 @@ func parseRequest(fileName string) *RequestConfig {
 		log.Fatal(err)
 	}
 
-	var request *RequestConfig
+	var request []RequestConfig
 	err = json.Unmarshal(content, &request)
 	if err != nil {
 		log.Fatal(err)
@@ -56,84 +56,91 @@ func main() {
 	}
 
 	fileName := os.Args[1]
-	requestConfig := parseRequest(fileName)
-	fmt.Println("::REQUEST::")
-	PrettyPrint(requestConfig)
+	requestConfigs := parseRequest(fileName)
+	size := len(requestConfigs)
 
-	queryParameters := "?"
-	for k, v := range requestConfig.Query {
-		queryParameters += fmt.Sprintf("%s=%s&", k, v)
-	}
+	for i, requestConfig := range requestConfigs {
+		fmt.Println("Request #", i+1, "of", size)
+		fmt.Println("::REQUEST::")
+		PrettyPrint(requestConfig)
 
-	fullUrl := requestConfig.Url + queryParameters
-
-	isFormRequest := len(requestConfig.Form) > 0
-	var httpRequest *http.Request
-	if isFormRequest {
-		formBody := ""
-		for k, v := range requestConfig.Form {
-			formBody += fmt.Sprintf("%s=%s&", k, v)
+		queryParameters := "?"
+		for k, v := range requestConfig.Query {
+			queryParameters += fmt.Sprintf("%s=%s&", k, v)
 		}
 
-		httpBody := strings.NewReader(formBody)
-		httpRequest, _ = http.NewRequest(requestConfig.Method, fullUrl, httpBody)
-	} else {
-		bodyJson, err := json.Marshal(requestConfig.Body)
+		fullUrl := requestConfig.Url + queryParameters
+
+		isFormRequest := len(requestConfig.Form) > 0
+		var httpRequest *http.Request
+		if isFormRequest {
+			formBody := ""
+			for k, v := range requestConfig.Form {
+				formBody += fmt.Sprintf("%s=%s&", k, v)
+			}
+
+			httpBody := strings.NewReader(formBody)
+			httpRequest, _ = http.NewRequest(requestConfig.Method, fullUrl, httpBody)
+		} else {
+			bodyJson, err := json.Marshal(requestConfig.Body)
+			if err != nil {
+				panic(err)
+			}
+
+			httpBody := bytes.NewBuffer(bodyJson)
+			httpRequest, _ = http.NewRequest(requestConfig.Method, fullUrl, httpBody)
+		}
+
+		httpRequest.Header.Set("Accept", "application/json")
+		for k, v := range requestConfig.Headers {
+			httpRequest.Header.Set(k, v)
+		}
+
+		if isFormRequest {
+			httpRequest.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		} else {
+			httpRequest.Header.Set("Content-Type", "application/json")
+		}
+
+		client := &http.Client{}
+		httpResponse, err := client.Do(httpRequest)
 		if err != nil {
 			panic(err)
 		}
 
-		httpBody := bytes.NewBuffer(bodyJson)
-		httpRequest, _ = http.NewRequest(requestConfig.Method, fullUrl, httpBody)
-	}
-
-	httpRequest.Header.Set("Accept", "application/json")
-	for k, v := range requestConfig.Headers {
-		httpRequest.Header.Set(k, v)
-	}
-
-	if isFormRequest {
-		httpRequest.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	} else {
-		httpRequest.Header.Set("Content-Type", "application/json")
-	}
-
-	client := &http.Client{}
-	httpResponse, err := client.Do(httpRequest)
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println("\n\n::RESPONSE HEADER::")
-	fmt.Println("Status Code:", httpResponse.StatusCode)
-	for k, v := range httpResponse.Header {
-		fmt.Printf("%s: %s\n", k, v)
-	}
-
-	httpResponseBody, err := io.ReadAll(httpResponse.Body)
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			panic(err)
+		fmt.Println("\n\n::RESPONSE HEADER::")
+		fmt.Println("Status Code:", httpResponse.StatusCode)
+		for k, v := range httpResponse.Header {
+			fmt.Printf("%s: %s\n", k, v)
 		}
-	}(httpResponse.Body)
 
-	fmt.Println("\n\n::RESPONSE BODY::")
+		httpResponseBody, err := io.ReadAll(httpResponse.Body)
+		defer func(Body io.ReadCloser) {
+			err := Body.Close()
+			if err != nil {
+				panic(err)
+			}
+		}(httpResponse.Body)
 
-	httpResponseJson := make(map[string]interface{})
-	err = json.Unmarshal(httpResponseBody, &httpResponseJson)
-	if err != nil {
-		httpResponseJson := make([]map[string]interface{}, 0)
+		fmt.Println("\n\n::RESPONSE BODY::")
+
+		httpResponseJson := make(map[string]interface{})
 		err = json.Unmarshal(httpResponseBody, &httpResponseJson)
-
 		if err != nil {
-			fmt.Println(string(httpResponseBody))
-			return
+			httpResponseJson := make([]map[string]interface{}, 0)
+			err = json.Unmarshal(httpResponseBody, &httpResponseJson)
+
+			if err != nil {
+				fmt.Println(string(httpResponseBody))
+			} else {
+				PrettyPrint(httpResponseJson)
+			}
+		} else {
+			PrettyPrint(httpResponseJson)
 		}
 
-		PrettyPrint(httpResponseJson)
-		return
+		if i != size-1 {
+			fmt.Println("\n\n\n")
+		}
 	}
-
-	PrettyPrint(httpResponseJson)
 }
