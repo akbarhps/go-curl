@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"path"
@@ -21,21 +21,28 @@ type RequestConfig struct {
 	Body    map[string]string `json:"body"`
 }
 
-func parseRequest(fileName string) []RequestConfig {
+func getFile(filePath string) (string, []byte) {
 	execDir, err := os.Getwd()
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
-	content, err := os.ReadFile(path.Join(execDir, fileName))
+	fullPath := path.Join(execDir, filePath)
+	file, err := os.ReadFile(fullPath)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
+	return fullPath, file
+}
+
+func parseRequestConfig(fileName string) []RequestConfig {
 	var request []RequestConfig
-	err = json.Unmarshal(content, &request)
+	_, content := getFile(fileName)
+
+	err := json.Unmarshal(content, &request)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	return request
@@ -44,9 +51,9 @@ func parseRequest(fileName string) []RequestConfig {
 func PrettyPrint(data interface{}) {
 	content, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
-		fmt.Println(err)
-		return
+		panic(err)
 	}
+
 	fmt.Printf("%s \n", content)
 }
 
@@ -56,7 +63,7 @@ func main() {
 	}
 
 	fileName := os.Args[1]
-	requestConfigs := parseRequest(fileName)
+	requestConfigs := parseRequestConfig(fileName)
 	size := len(requestConfigs)
 
 	for i, requestConfig := range requestConfigs {
@@ -74,13 +81,38 @@ func main() {
 		isFormRequest := len(requestConfig.Form) > 0
 		var httpRequest *http.Request
 		if isFormRequest {
-			formBody := ""
+			buf := new(bytes.Buffer)
+			m := multipart.NewWriter(buf)
+
 			for k, v := range requestConfig.Form {
-				formBody += fmt.Sprintf("%s=%s&", k, v)
+				if strings.HasPrefix(v, "file:") {
+					filePath := strings.TrimSpace(strings.TrimPrefix(v, "file:"))
+					fullPath, file := getFile(filePath)
+
+					part, err := m.CreateFormFile(k, path.Base(fullPath))
+					if err != nil {
+						panic(err)
+					}
+
+					_, err = part.Write(file)
+					if err != nil {
+						panic(err)
+					}
+				} else {
+					err := m.WriteField(k, v)
+					if err != nil {
+						panic(err)
+					}
+				}
 			}
 
-			httpBody := strings.NewReader(formBody)
-			httpRequest, _ = http.NewRequest(requestConfig.Method, fullUrl, httpBody)
+			err := m.Close()
+			if err != nil {
+				panic(err)
+			}
+
+			httpRequest, _ = http.NewRequest(requestConfig.Method, fullUrl, buf)
+			httpRequest.Header.Set("Content-Type", m.FormDataContentType())
 		} else {
 			bodyJson, err := json.Marshal(requestConfig.Body)
 			if err != nil {
@@ -89,17 +121,12 @@ func main() {
 
 			httpBody := bytes.NewBuffer(bodyJson)
 			httpRequest, _ = http.NewRequest(requestConfig.Method, fullUrl, httpBody)
+			httpRequest.Header.Set("Content-Type", "application/json")
 		}
 
 		httpRequest.Header.Set("Accept", "application/json")
 		for k, v := range requestConfig.Headers {
 			httpRequest.Header.Set(k, v)
-		}
-
-		if isFormRequest {
-			httpRequest.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-		} else {
-			httpRequest.Header.Set("Content-Type", "application/json")
 		}
 
 		client := &http.Client{}
