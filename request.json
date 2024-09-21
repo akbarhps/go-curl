@@ -11,6 +11,17 @@
     "body": {}
   },
   {
+    "url": "https://64e9579299cf45b15fe09811.mockapi.io/test/api/users/{0->0->id}",
+    "method": "GET",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    },
+    "query": {},
+    "form": {},
+    "body": {}
+  },
+  {
     "url": "http://localhost:8000/upload",
     "method": "POST",
     "headers": {
