@@ -13,12 +13,12 @@ import (
 )
 
 type RequestConfig struct {
-	Url     string            `json:"url"`
-	Method  string            `json:"method"`
-	Headers map[string]string `json:"headers"`
-	Query   map[string]string `json:"query"`
-	Form    map[string]string `json:"form"`
-	Body    map[string]string `json:"body"`
+	Url     string                 `json:"url"`
+	Method  string                 `json:"method"`
+	Headers map[string]string      `json:"headers"`
+	Query   map[string]string      `json:"query"`
+	Form    map[string]string      `json:"form"`
+	Body    map[string]interface{} `json:"body"`
 }
 
 func getFile(filePath string) (string, []byte) {
@@ -81,6 +81,7 @@ func main() {
 		for k, v := range requestConfig.Query {
 			queryParameters += fmt.Sprintf("%s=%s&", k, v)
 		}
+		queryParameters = strings.TrimSuffix(queryParameters, "&")
 
 		fullUrl := requestConfig.Url + queryParameters
 
