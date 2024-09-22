@@ -21,6 +21,7 @@ func main() {
 
 func run(configs []RequestConfig) {
 	responses := make(map[int]interface{})
+	next := true
 
 	fmt.Print("[")
 	for i, config := range configs {
@@ -68,7 +69,8 @@ func run(configs []RequestConfig) {
 		var responseJSON interface{}
 		err = json.Unmarshal(responseBody, &responseJSON)
 		if err != nil {
-			panic(err)
+			responseJSON = "\"" + string(responseBody) + "\""
+			next = false
 		}
 
 		headers := make(map[string]interface{})
@@ -109,7 +111,7 @@ func run(configs []RequestConfig) {
 		fmt.Printf("%s", pretty)
 
 		// break early if status code is not 200
-		if response.StatusCode != 200 {
+		if !next || response.StatusCode != 200 {
 			break
 		}
 
