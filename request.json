@@ -8,7 +8,7 @@
     },
     "query": {},
     "form": {},
-    "body": {}
+    "json": {}
   },
   {
     "url": "https://64e9579299cf45b15fe09811.mockapi.io/test/api/users/{0->0->id}",
@@ -19,7 +19,7 @@
     },
     "query": {},
     "form": {},
-    "body": {}
+    "json": {}
   },
   {
     "url": "http://localhost:8000/upload",
@@ -31,6 +31,6 @@
     "form": {
       "file": "file: ./request.json"
     },
-    "body": {}
+    "json": {}
   }
 ]
