@@ -45,18 +45,16 @@ func parseConfig(fileName string) []RequestConfig {
 }
 
 func parseReference(value string) *[]Reference {
-	references := make([]Reference, 0)
-
 	re := regexp.MustCompile(`{(.*?)}`)
 	matches := re.FindAllStringSubmatch(value, -1)
 	if len(matches) == 0 {
 		return nil
 	}
 
+	references := make([]Reference, 0)
 	for _, match := range matches {
 		// match contains: [{0->0->id} 0->0->id]
 		ref := match[1]
-		// split ref by ->
 		items := strings.Split(ref, "->")
 
 		index, err := strconv.Atoi(items[0])
@@ -106,7 +104,6 @@ func parseReferenceAsMap(ref Reference, refValues map[int]interface{}) map[strin
 	for k, v := range rawMap {
 		value, ok := v.(string)
 		if !ok {
-			// NOTE: skip if the value is not a string
 			continue
 		}
 		refMap[k] = value
@@ -115,9 +112,18 @@ func parseReferenceAsMap(ref Reference, refValues map[int]interface{}) map[strin
 	return refMap
 }
 
-func replaceReferenceWithValue(oldValue string, ref Reference, refValues map[int]interface{}) string {
-	refMap := parseReferenceAsMap(ref, refValues)
-	return strings.ReplaceAll(oldValue, ref.RawReference, refMap[ref.Key])
+func replaceReferenceWithValue(text string, refValues map[int]interface{}) string {
+	refs := parseReference(text)
+	if refs == nil {
+		return text
+	}
+
+	newValue := text
+	for _, ref := range *refs {
+		refMap := parseReferenceAsMap(ref, refValues)
+		newValue = strings.ReplaceAll(text, ref.RawReference, refMap[ref.Key])
+	}
+	return newValue
 }
 
 func parseQueryParameter(config *RequestConfig, refValues map[int]interface{}) string {
@@ -127,44 +133,17 @@ func parseQueryParameter(config *RequestConfig, refValues map[int]interface{}) s
 
 	query := "?"
 	for k, v := range config.Query {
-		value := v
-		refs := parseReference(v)
-
-		if refs != nil {
-			for _, ref := range *refs {
-				value = replaceReferenceWithValue(value, ref, refValues)
-			}
-		}
-
-		query += fmt.Sprintf("%s=%s&", k, value)
+		query += fmt.Sprintf("%s=%s&", k, replaceReferenceWithValue(v, refValues))
 	}
 
 	return strings.TrimSuffix(query, "&")
 }
 
-func replacePathInUrl(url string, refValues map[int]interface{}) string {
-	refs := parseReference(url)
-	if refs == nil {
-		return url
-	}
-
-	newUrl := url
-	for _, ref := range *refs {
-		newUrl = replaceReferenceWithValue(newUrl, ref, refValues)
-	}
-
-	return newUrl
-}
-
 func parseUrl(config *RequestConfig, refValues map[int]interface{}) string {
-	return replacePathInUrl(config.Url, refValues) + parseQueryParameter(config, refValues)
+	return replaceReferenceWithValue(config.Url, refValues) + parseQueryParameter(config, refValues)
 }
 
 func parseFormBody(config *RequestConfig, refValues map[int]interface{}) (*bytes.Buffer, string) {
-	if len(config.Form) == 0 {
-		return bytes.NewBuffer(nil), ""
-	}
-
 	buffer := new(bytes.Buffer)
 	writer := multipart.NewWriter(buffer)
 
@@ -185,14 +164,7 @@ func parseFormBody(config *RequestConfig, refValues map[int]interface{}) (*bytes
 			continue
 		}
 
-		refs := parseReference(v)
-		if refs != nil {
-			for _, ref := range *refs {
-				v = replaceReferenceWithValue(v, ref, refValues)
-			}
-		}
-
-		err := writer.WriteField(k, v)
+		err := writer.WriteField(k, replaceReferenceWithValue(v, refValues))
 		if err != nil {
 			panic(err)
 		}
@@ -207,10 +179,6 @@ func parseFormBody(config *RequestConfig, refValues map[int]interface{}) (*bytes
 }
 
 func parseJSONBody(config *RequestConfig, refValues map[int]interface{}) (*bytes.Buffer, string) {
-	if len(config.JSON) == 0 {
-		return bytes.NewBuffer(nil), ""
-	}
-
 	newJSON := make(map[string]interface{})
 	for k, v := range config.JSON {
 		value, ok := v.(string)
@@ -219,16 +187,7 @@ func parseJSONBody(config *RequestConfig, refValues map[int]interface{}) (*bytes
 			continue
 		}
 
-		refs := parseReference(value)
-		if refs == nil {
-			newJSON[k] = v
-			continue
-		}
-
-		for _, ref := range *refs {
-			value = replaceReferenceWithValue(value, ref, refValues)
-		}
-		newJSON[k] = value
+		newJSON[k] = replaceReferenceWithValue(value, refValues)
 	}
 
 	body, err := json.Marshal(newJSON)

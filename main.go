@@ -23,8 +23,6 @@ func run(configs []RequestConfig) {
 
 	fmt.Print("[")
 	for i, config := range configs {
-		fullUrl := parseUrl(&config, responses)
-
 		ctype := ""
 		buffer := bytes.NewBuffer(nil)
 
@@ -35,6 +33,7 @@ func run(configs []RequestConfig) {
 			buffer, ctype = parseJSONBody(&config, responses)
 		}
 
+		fullUrl := parseUrl(&config, responses)
 		request, err := http.NewRequest(config.Method, fullUrl, buffer)
 		if err != nil {
 			panic(err)
@@ -44,16 +43,7 @@ func run(configs []RequestConfig) {
 			request.Header.Set("Content-Type", ctype)
 		}
 		for k, v := range config.Headers {
-			refs := parseReference(v)
-			if refs == nil {
-				request.Header.Set(k, v)
-				continue
-			}
-
-			for _, ref := range *refs {
-				value := replaceReferenceWithValue(v, ref, responses)
-				request.Header.Set(k, value)
-			}
+			request.Header.Set(k, replaceReferenceWithValue(v, responses))
 		}
 
 		timestamp := time.Now()
@@ -80,16 +70,17 @@ func run(configs []RequestConfig) {
 			panic(err)
 		}
 
-		PrettyPrint(map[string]interface{}{
+		pretty, err := json.MarshalIndent(map[string]interface{}{
 			"_____url":    fullUrl,
 			"____status":  response.Status,
 			"___duration": time.Since(timestamp).String(),
-			"__headers": map[string]interface{}{
-				"_request":  response.Request.Header,
-				"_response": response.Header,
-			},
-			"_body": responseJSON,
-		})
+			"__headers":   response.Header,
+			"_body":       responseJSON,
+		}, "", "  ")
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("%s", pretty)
 
 		// break early if status code is not 200
 		if response.StatusCode != 200 {
@@ -103,13 +94,4 @@ func run(configs []RequestConfig) {
 		responses[i] = responseJSON
 	}
 	fmt.Print("]")
-}
-
-func PrettyPrint(v interface{}) {
-	content, err := json.MarshalIndent(v, "", "  ")
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("%s", content)
 }
