@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -70,11 +71,36 @@ func run(configs []RequestConfig) {
 			panic(err)
 		}
 
+		headers := make(map[string]interface{})
+		for k, v := range response.Header {
+			if len(v) > 1 {
+				value := ""
+				for _, item := range v {
+					value += item + ";"
+				}
+				headers[k] = strings.TrimSuffix(value, ";")
+				continue
+			}
+
+			isJSON := strings.HasPrefix(v[0], "{") || strings.HasPrefix(v[0], "[")
+			if !isJSON || !json.Valid([]byte(v[0])) {
+				headers[k] = v[0]
+				continue
+			}
+
+			var m map[string]interface{}
+			if err := json.Unmarshal([]byte(v[0]), &m); err != nil {
+				headers[k] = v[0]
+				continue
+			}
+			headers[k] = m
+		}
+
 		pretty, err := json.MarshalIndent(map[string]interface{}{
 			"_____url":    fullUrl,
 			"____status":  response.Status,
 			"___duration": time.Since(timestamp).String(),
-			"__headers":   response.Header,
+			"__headers":   headers,
 			"_body":       responseJSON,
 		}, "", "  ")
 		if err != nil {
