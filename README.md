@@ -27,50 +27,38 @@ Output:
   {
     "_____url": "https://64e9579299cf45b15fe09811.mockapi.io/test/api/users",
     "____status": "200 OK",
-    "___duration": "1.890169s",
+    "___duration": "1.6396044s",
     "__headers": {
-      "Access-Control-Allow-Headers": [
-        "X-Requested-With,Content-Type,Cache-Control,access_token"
-      ],
-      "Access-Control-Allow-Methods": [
-        "GET,PUT,POST,DELETE,OPTIONS"
-      ],
-      "Access-Control-Allow-Origin": [
-        "*"
-      ],
-      "Connection": [
-        "keep-alive"
-      ],
-      "Content-Length": [
-        "18087"
-      ],
-      "Content-Type": [
-        "application/json"
-      ],
-      "Date": [
-        "Sun, 22 Sep 2024 02:50:21 GMT"
-      ],
-      "Etag": [
-        "\"-749874500\""
-      ],
-      "Nel": [
-        "{\"report_to\":\"heroku-nel\",\"max_age\":3600,\"success_fraction\":0.005,\"failure_fraction\":0.05,\"response_headers\":[\"Via\"]}"
-      ],
-      "Report-To": [
-        "{\"group\":\"heroku-nel\",\"max_age\":3600,\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?ts=1726973421\u0026sid=1b10b0ff-8a76-4548-befa-353fc6c6c045\u0026s=6zVH9UDdo83zu0n%2B7P8U82lFZM35LGTypEvlrd2OBEc%3D\"}]}"
-      ],
-      "Reporting-Endpoints": [
-        "heroku-nel=https://nel.heroku.com/reports?ts=1726973421\u0026sid=1b10b0ff-8a76-4548-befa-353fc6c6c045\u0026s=6zVH9UDdo83zu0n%2B7P8U82lFZM35LGTypEvlrd2OBEc%3D"
-      ],
-      "Server": [
-        "Cowboy"
-      ],
-      "Via": [
-        "1.1 vegur"
-      ],
-      "X-Powered-By": [
-        "Express"
-      ]
+      "Access-Control-Allow-Headers": "X-Requested-With,Content-Type,Cache-Control,access_token",
+      "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,OPTIONS",
+      "Access-Control-Allow-Origin": "*",
+      "Connection": "keep-alive",
+      "Content-Length": "18087",
+      "Content-Type": "application/json",
+      "Date": "Sun, 22 Sep 2024 03:18:45 GMT",
+      "Etag": "\"-749874500\"",
+      "Nel": {
+        "failure_fraction": 0.05,
+        "max_age": 3600,
+        "report_to": "heroku-nel",
+        "response_headers": [
+          "Via"
+        ],
+        "success_fraction": 0.005
+      },
+      "Report-To": {
+        "endpoints": [
+          {
+            "url": "https://nel.heroku.com/reports?ts=1726975125\u0026sid=1b10b0ff-8a76-4548-befa-353fc6c6c045\u0026s=9dPzhqKVYp9FYudjWXaLgTJg32IQ5WuW57i%2FKNDdSc8%3D"
+          }
+        ],
+        "group": "heroku-nel",
+        "max_age": 3600
+      },
+      "Reporting-Endpoints": "heroku-nel=https://nel.heroku.com/reports?ts=1726975125\u0026sid=1b10b0ff-8a76-4548-befa-353fc6c6c045\u0026s=9dPzhqKVYp9FYudjWXaLgTJg32IQ5WuW57i%2FKNDdSc8%3D",
+      "Server": "Cowboy",
+      "Via": "1.1 vegur",
+      "X-Powered-By": "Express"
     },
     "_body": [
       {
@@ -678,50 +666,38 @@ Output:
   {
     "_____url": "https://64e9579299cf45b15fe09811.mockapi.io/test/api/users/1",
     "____status": "200 OK",
-    "___duration": "604.2433ms",
+    "___duration": "380.9211ms",
     "__headers": {
-      "Access-Control-Allow-Headers": [
-        "X-Requested-With,Content-Type,Cache-Control,access_token"
-      ],
-      "Access-Control-Allow-Methods": [
-        "GET,PUT,POST,DELETE,OPTIONS"
-      ],
-      "Access-Control-Allow-Origin": [
-        "*"
-      ],
-      "Connection": [
-        "keep-alive"
-      ],
-      "Content-Length": [
-        "182"
-      ],
-      "Content-Type": [
-        "application/json"
-      ],
-      "Date": [
-        "Sun, 22 Sep 2024 02:50:22 GMT"
-      ],
-      "Etag": [
-        "\"-565830836\""
-      ],
-      "Nel": [
-        "{\"report_to\":\"heroku-nel\",\"max_age\":3600,\"success_fraction\":0.005,\"failure_fraction\":0.05,\"response_headers\":[\"Via\"]}"
-      ],
-      "Report-To": [
-        "{\"group\":\"heroku-nel\",\"max_age\":3600,\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?ts=1726973422\u0026sid=1b10b0ff-8a76-4548-befa-353fc6c6c045\u0026s=sK7fJomCAWJw0xOykjJMqitiJEaJCIrE%2FTXt6zEVFRQ%3D\"}]}"
-      ],
-      "Reporting-Endpoints": [
-        "heroku-nel=https://nel.heroku.com/reports?ts=1726973422\u0026sid=1b10b0ff-8a76-4548-befa-353fc6c6c045\u0026s=sK7fJomCAWJw0xOykjJMqitiJEaJCIrE%2FTXt6zEVFRQ%3D"
-      ],
-      "Server": [
-        "Cowboy"
-      ],
-      "Via": [
-        "1.1 vegur"
-      ],
-      "X-Powered-By": [
-        "Express"
-      ]
+      "Access-Control-Allow-Headers": "X-Requested-With,Content-Type,Cache-Control,access_token",
+      "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,OPTIONS",
+      "Access-Control-Allow-Origin": "*",
+      "Connection": "keep-alive",
+      "Content-Length": "182",
+      "Content-Type": "application/json",
+      "Date": "Sun, 22 Sep 2024 03:18:45 GMT",
+      "Etag": "\"-565830836\"",
+      "Nel": {
+        "failure_fraction": 0.05,
+        "max_age": 3600,
+        "report_to": "heroku-nel",
+        "response_headers": [
+          "Via"
+        ],
+        "success_fraction": 0.005
+      },
+      "Report-To": {
+        "endpoints": [
+          {
+            "url": "https://nel.heroku.com/reports?ts=1726975125\u0026sid=1b10b0ff-8a76-4548-befa-353fc6c6c045\u0026s=9dPzhqKVYp9FYudjWXaLgTJg32IQ5WuW57i%2FKNDdSc8%3D"
+          }
+        ],
+        "group": "heroku-nel",
+        "max_age": 3600
+      },
+      "Reporting-Endpoints": "heroku-nel=https://nel.heroku.com/reports?ts=1726975125\u0026sid=1b10b0ff-8a76-4548-befa-353fc6c6c045\u0026s=9dPzhqKVYp9FYudjWXaLgTJg32IQ5WuW57i%2FKNDdSc8%3D",
+      "Server": "Cowboy",
+      "Via": "1.1 vegur",
+      "X-Powered-By": "Express"
     },
     "_body": {
       "avatar": "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/193.jpg",
